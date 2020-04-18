@@ -1,70 +1,61 @@
 function vis1(data, div) {
-  const margin = {top: 40, right: 20, bottom: 40, left: 100};
 
-  const visWidth = 700 - margin.left - margin.right;
-  const visHeight = 400 - margin.top - margin.bottom;
+  var donor_data = Array.from(d3.rollup(data, rec=>d3.sum(rec.map(c=>c.commitment_amount_usd_constant)), d=>d.donor), ([country, amount])=>({country,amount})).sort((a, b) => d3.descending(a.amount, b.amount));
+  var recipient_data = Array.from(d3.rollup(data, rec=>-d3.sum(rec.map(c=>c.commitment_amount_usd_constant)), d=>d.recipient), ([country, amount])=>({country,amount})).sort((a, b) => d3.descending(a.amount, b.amount));
+  
+  var donor_map = Object.fromEntries(donor_data.map(item => [item.country, item.amount]));
+  var recipient_map = Object.fromEntries(recipient_data.map(item => [item.country, item.amount]));
+
+  var merged_data = donor_data.concat(recipient_data).sort((a, b) => d3.descending(
+    ( a.country in donor_map ? donor_map[a.country]: 0 )+ (a.country in recipient_map ? recipient_map[a.country] : 0), 
+    ( b.country in donor_map ? donor_map[b.country]: 0 )+ (b.country in recipient_map ? recipient_map[b.country] : 0)
+  ));
+
+  var countries = Array.from(new Set(merged_data.map(d => d.country)));
+  
+  const margin = ({top: 30, right: 60, bottom: 10, left: 60});
+  const width = 1000;
+  var barHeight = 25;
+  const height = Math.ceil((Math.max(donor_data.length, recipient_data.length) + 0.1) * barHeight) + margin.top + margin.bottom;
+  console.log(height);
+  var x = d3.scaleLinear()
+    .domain(d3.extent(merged_data, d => d.amount))
+    .rangeRound([margin.left, width - margin.right]);
+  
+  var t= margin.bottom;
+  var y = d3.scaleBand()
+    .domain(countries)
+    .rangeRound([margin.top, height - t])
+    .padding(0.1);
+  
+  var xAxis = g => g
+  .attr("transform", `translate(0,${margin.top})`)
+  .call(d3.axisTop(x).ticks(width / 80).tickFormat(function(d){return d/1000000 + " M"}))
+  .call(g => g.select(".domain").remove());
+
+  var yAxis = g => g
+    .attr("transform", `translate(${x(0)},0)`)
+    .call(d3.axisLeft(y));
+
+  
+  
 
   const svg = div.append('svg')
-      .attr('width', visWidth + margin.left + margin.right)
-      .attr('height', visHeight + margin.top + margin.bottom);
-
-  const g = svg.append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-  // add title
-
-  g.append("text")
-    .attr("x", visWidth / 2)
-    .attr("y", -margin.top + 5)
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "hanging")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "16px")
-    .text("Game Scores");
-
-  // create scales
-
-  const x = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.score)]).nice()
-    .range([0, visWidth]);
-
-  const sortedNames = data.sort((a, b) => d3.descending(a.score, b.score))
-      .map(d => d.name);
-
-  const y = d3.scaleBand()
-    .domain(sortedNames)
-    .range([0, visHeight])
-    .padding(0.2);
-
-  // create and add axes
-
-  const xAxis = d3.axisBottom(x);
-
-  g.append("g")
-    .attr("transform", `translate(0, ${visHeight})`)
-    .call(xAxis)
-    .call(g => g.selectAll(".domain").remove())
-    .append("text")
-    .attr("x", visWidth / 2)
-    .attr("y", 40)
-    .attr("fill", "black")
-    .attr("text-anchor", "middle")
-    .text("Score");
-
-  const yAxis = d3.axisLeft(y);
-
-  g.append("g")
-    .call(yAxis)
-    .call(g => g.selectAll(".domain").remove());
-
-  // draw bars
-
-  g.selectAll("rect")
-    .data(data)
+      .attr("viewBox", [0, 0, width, height]);
+  
+  svg.append("g")
+    .selectAll("rect")
+    .data(merged_data)
     .join("rect")
-    .attr("x", d => 0)
-    .attr("y", d => y(d.name))
-    .attr("width", d => x(d.score))
-    .attr("height", d => y.bandwidth())
-    .attr("fill", "steelblue");
+      .attr("fill", d => d3.schemeSet1[d.amount > 0 ? 1 : 0])
+      .attr("x", d => x(Math.min(d.amount, 0)))
+      .attr("y", d=>y(d.country))
+      .attr("width", d => Math.abs(x(d.amount) - x(0)))
+      .attr("height", y.bandwidth());
+
+  svg.append("g")
+      .call(xAxis);
+
+  svg.append("g")
+      .call(yAxis);
 }
