@@ -112,10 +112,11 @@ legend2({
   div:div, 
   color: colorProb3,
   tickFormat: function(d){return d/1000000 + " M"},
+  title: "Financial Aid" ,
 });
 
 // margin convention
-const margin = {top: 10, right: 0, bottom: 0, left: 10};
+const margin = {top: 0, right: 0, bottom: 0, left: 0};
 const visWidth = 1000 - margin.left - margin.right;
 const visHeight = 1000 - margin.top - margin.bottom;
 
