@@ -1,6 +1,5 @@
 function ramp(div, color, n = 256) {
   const canvas = div.append("canvas");
-  console.log(canvas.node());
   const context = canvas.node().getContext("2d");
   for (let i = 0; i < n; ++i) {
     context.fillStyle = color(i / (n - 1));
@@ -14,11 +13,11 @@ function legend2({
   color,
   title,
   tickSize = 6,
-  width = 320, 
+  width = 250, 
   height = 100 + tickSize,
-  marginTop = 18,
+  marginTop = 0,
   marginRight = 0,
-  marginBottom = 16 + tickSize,
+  marginBottom = -20 + tickSize,
   marginLeft = 0,
   ticks = width / 64,
   tickFormat,
@@ -47,7 +46,7 @@ function legend2({
       .attr("width", width - marginLeft - marginRight)
       .attr("height", height - marginTop - marginBottom)
       .attr("preserveAspectRatio", "none")
-      .attr("xlink:href", ramp(div, color.interpolator()).toDataURL());
+      .attr("xlink:href", ramp(div, color.interpolator()));
 
   // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
   if (!x.ticks) {
@@ -69,7 +68,6 @@ function legend2({
         .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
         .tickSize(tickSize)
         .tickValues(tickValues))
-      .call(tickAdjust)
       .call(g => g.select(".domain").remove())
       .call(g => g.append("text")
         .attr("x", marginLeft)
@@ -84,8 +82,6 @@ function vis2(geoJSON, data, div) {
 
 var donor_data = Array.from(d3.rollup(data, rec=>d3.sum(rec.map(c=>c.commitment_amount_usd_constant)), d=>d.donor), ([country, amount])=>({country,amount})).sort((a, b) => d3.descending(a.amount, b.amount));
 var recipient_data = Array.from(d3.rollup(data, rec=>-d3.sum(rec.map(c=>c.commitment_amount_usd_constant)), d=>d.recipient), ([country, amount])=>({country,amount})).sort((a, b) => d3.descending(a.amount, b.amount));
-console.log(donor_data);
-
 
 var donor_map = Object.fromEntries(donor_data.map(item => [item.country, item.amount]));
 var recipient_map = Object.fromEntries(recipient_data.map(item => [item.country, item.amount]));
@@ -112,16 +108,16 @@ legend2({
   div:div, 
   color: colorProb3,
   tickFormat: function(d){return d/1000000 + " M"},
-  title: "Financial Aid" ,
+  title: "Net Amounts" ,
 });
 
 // margin convention
-const margin = {top: 0, right: 0, bottom: 0, left: 0};
-const visWidth = 1000 - margin.left - margin.right;
-const visHeight = 1000 - margin.top - margin.bottom;
+const margin = {top: 50, right: 0, bottom: 0, left: 0};
+const visWidth = 900 - margin.left - margin.right;
+const visHeight = 400 - margin.top - margin.bottom;
 
 const svg = div.append('svg')
-      .attr("viewBox", [0, 0, 1000 ,1000]);
+      .attr("viewBox", [0, 0, visWidth ,visHeight])
 
 const g = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
