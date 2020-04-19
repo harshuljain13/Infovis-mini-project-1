@@ -1,13 +1,3 @@
-function ramp(color, n = 256) {
-  const canvas = DOM.canvas(n, 1);
-  const context = canvas.getContext("2d");
-  for (let i = 0; i < n; ++i) {
-    context.fillStyle = color(i / (n - 1));
-    context.fillRect(i, 0, 1, 1);
-  }
-  return canvas;
-}
-
 
 function legend({
   div,
@@ -160,7 +150,7 @@ function vis1(data, div) {
   
   const margin = ({top: 30, right: 60, bottom: 10, left: 60});
   const width = 1200;
-  var barHeight = 25;
+  var barHeight = 20;
   const height = Math.ceil((Math.max(donor_data.length, recipient_data.length) + 0.1) * barHeight) + margin.top + margin.bottom;
   console.log(height);
   
