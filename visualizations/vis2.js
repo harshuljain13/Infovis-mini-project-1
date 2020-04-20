@@ -112,7 +112,7 @@ legend2({
 });
 
 // margin convention
-const margin = {top: 50, right: 0, bottom: 0, left: 0};
+const margin = {top: 10, right: 0, bottom: 0, left: 0};
 const visWidth = 900 - margin.left - margin.right;
 const visHeight = 400 - margin.top - margin.bottom;
 
