@@ -149,8 +149,8 @@ function vis1(data, div) {
   var countries = Array.from(new Set(merged_data.map(d => d.country)));
   
   const margin = ({top: 30, right: 60, bottom: 10, left: 60});
-  const width = 1200;
-  var barHeight = 15;
+  const width = 1000;
+  var barHeight = 10;
   const height = Math.ceil((Math.max(donor_data.length, recipient_data.length) + 0.1) * barHeight) + margin.top + margin.bottom;
   console.log(height);
   
@@ -182,7 +182,7 @@ function vis1(data, div) {
   legend({
       div: div,
       color: color1,
-      title: 'Financial Aid record'
+      title: 'Financial Aid Amounts'
     });
 
   const svg = div.append('svg')

@@ -102,13 +102,13 @@ const percentChangeExtent = d3.extent(total_data_array, d => d.amount);
 
 const colorProb3 = d3.scaleDiverging()
   .domain([percentChangeExtent[0], 0, percentChangeExtent[1]])
-  .interpolator(d3.interpolateRdYlBu);
+  .interpolator(d3.interpolateBrBG);
 
 legend2({
   div:div, 
   color: colorProb3,
   tickFormat: function(d){return d/1000000 + " M"},
-  title: "Net Amounts" ,
+  title: "Net Financial Amounts" ,
 });
 
 // margin convention
@@ -131,8 +131,6 @@ g.append("path")
     .datum(geoJSON)
     .attr("d", path)
     .attr("stroke", "white");
-
-
 
 var countries_map = Object.fromEntries(total_data_map);
 console.log(total_data_map)
